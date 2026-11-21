@@ -2,9 +2,11 @@ module com.buga.mmgenerator {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
+    requires javafx.swing;
     requires kotlin.stdlib;
     requires atlantafx.base;
     requires com.google.gson;
+    requires java.desktop;
 
     requires org.controlsfx.controls;
     requires org.kordamp.ikonli.javafx;

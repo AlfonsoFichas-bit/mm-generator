@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane fx:id="editorPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.buga.mmgenerator.MemesEditorController">
+   <children>
+      <!-- Main content area -->
+      <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" spacing="10.0">
+         <!-- Top Toolbar -->
+         <HBox styleClass="editor-toolbar" spacing="10.0">
+                        <padding>
+                           <Insets top="10" right="10" bottom="10" left="10" />
+                        </padding>
+            <children>
+               <!-- Meme Image Display -->
+               <AnchorPane fx:id="memeCanvas" styleClass="meme-canvas" minWidth="600.0" minHeight="400.0" prefWidth="600.0" prefHeight="400.0">
+                  <ImageView fx:id="imageView" fitWidth="1.0" fitHeight="1.0" preserveRatio="true" />
+                  <!-- Add text button overlay -->
+                  <VBox alignment="BOTTOM_RIGHT" styleClass="add-text-overlay" visible="false">
+                     <Button text="+" styleClass="add-text-btn" onAction="#addTextBox" />
+                  </VBox>
+               </AnchorPane>
+
+               <!-- Properties Panel -->
+               <VBox fx:id="propertiesPanel" styleClass="properties-panel" prefWidth="200.0" maxWidth="200.0" spacing="15.0">
+                  <Label text="Configuración de Texto" styleClass="panel-title" />
+                  
+                  <VBox spacing="8.0">
+                      <!-- Text Content -->
+                      <Label text="Contenido:" />
+                      <TextField fx:id="textContentField" onAction="#updateSelectedText" />
+                      
+                      <!-- Font Size -->
+                      <Label text="Tamaño de fuente:" />
+                      <HBox spacing="5.0">
+                          <Button text="-" styleClass="font-size-btn" onAction="#decreaseFontSize" />
+                          <TextField fx:id="fontSizeField" promptText="12" onAction="#updateFontSize" />
+                          <Button text="+" styleClass="font-size-btn" onAction="#increaseFontSize" />
+                      </HBox>
+                      
+                      <!-- Text Color -->
+                      <Label text="Color:" />
+                      <HBox spacing="5.0">
+                          <Button fx:id="colorBtn" text="Seleccionar" styleClass="color-btn" onAction="#selectColor" />
+                          <Label fx:id="selectedColorLabel" text="Ningún color" styleClass="color-preview" />
+                      </HBox>
+                      
+                      <!-- Position -->
+                      <Label text="Posición:" />
+                      <FlowPane fx:id="positionContainer" hgap="5.0" vgap="5.0" alignment="CENTER_LEFT">
+                          <Label text="X:" />
+                          <TextField fx:id="posXField" promptText="0" prefWidth="50" onAction="#updatePosition" />
+                          <Label text="Y:" />
+                          <TextField fx:id="posYField" promptText="0" prefWidth="50" onAction="#updatePosition" />
+                      </FlowPane>
+                      
+                      <!-- Actions -->
+                      <HBox spacing="8.0" alignment="BASELINE_CENTER">
+                          <Button fx:id="deleteTextBtn" text="Eliminar texto" styleClass="danger-btn" onAction="#deleteSelectedText" />
+                          <Button text="Exportar" styleClass="success-btn" onAction="#exportMeme" />
+                      </HBox>
+                  </VBox>
+               </VBox>
+            </children>
+         </HBox>
+
+         <!-- Active Text Boxes List -->
+         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" spacing="5.0" styleClass="text-boxes-list">
+            <Label text="Cajas de texto activas" styleClass="list-title" />
+            <ListView fx:id="textBoxesList" maxHeight="150.0" />
+         </VBox>
+      </VBox>
+   </children>
+</AnchorPane>

@@ -6,6 +6,7 @@ import com.buga.mmgenerator.ui.Icons
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
@@ -16,31 +17,71 @@ import javafx.scene.control.TextField
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.stage.FileChooser
+import javafx.stage.Modality
 import javafx.stage.Stage
 import java.io.File
 
 class MainController {
 
-    @FXML private lateinit var rootContainer: StackPane
-    @FXML private lateinit var mainLayout: BorderPane
-    @FXML private lateinit var headerBar: HBox
-    @FXML private lateinit var searchContainer: HBox
-    @FXML private lateinit var searchIconContainer: StackPane
-    @FXML private lateinit var searchField: TextField
-    @FXML private lateinit var lblTitle: Label
-    @FXML private lateinit var headerActions: HBox
-    @FXML private lateinit var btnFolder: Button
-    @FXML private lateinit var folderIconContainer: StackPane
-    @FXML private lateinit var btnMinimize: Button
-    @FXML private lateinit var minimizeIconContainer: StackPane
-    @FXML private lateinit var btnMaximize: Button
-    @FXML private lateinit var maximizeIconContainer: StackPane
-    @FXML private lateinit var btnClose: Button
-    @FXML private lateinit var closeIconContainer: StackPane
-    @FXML private lateinit var sidebar: VBox
-    @FXML private lateinit var galleryScroll: ScrollPane
-    @FXML private lateinit var galleryFlow: FlowPane
+    @FXML
+    private lateinit var rootContainer: StackPane
+
+    @FXML
+    private lateinit var mainLayout: BorderPane
+
+    @FXML
+    private lateinit var headerBar: HBox
+
+    @FXML
+    private lateinit var searchContainer: HBox
+
+    @FXML
+    private lateinit var searchIconContainer: StackPane
+
+    @FXML
+    private lateinit var searchField: TextField
+
+    @FXML
+    private lateinit var lblTitle: Label
+
+    @FXML
+    private lateinit var headerActions: HBox
+
+    @FXML
+    private lateinit var btnFolder: Button
+
+    @FXML
+    private lateinit var folderIconContainer: StackPane
+
+    @FXML
+    private lateinit var btnMinimize: Button
+
+    @FXML
+    private lateinit var minimizeIconContainer: StackPane
+
+    @FXML
+    private lateinit var btnMaximize: Button
+
+    @FXML
+    private lateinit var maximizeIconContainer: StackPane
+
+    @FXML
+    private lateinit var btnClose: Button
+
+    @FXML
+    private lateinit var closeIconContainer: StackPane
+
+    @FXML
+    private lateinit var sidebar: VBox
+
+    @FXML
+    private lateinit var galleryScroll: ScrollPane
+
+    @FXML
+    private lateinit var galleryFlow: FlowPane
 
     private var currentCategory = "Todas las plantillas"
     private var selectedTemplate: MemeTemplate? = null
@@ -340,9 +381,37 @@ class MainController {
         // Card Click Selection
         cardStack.setOnMouseClicked {
             selectedTemplate = template
-            renderGallery()
+            openMemeEditor(template)
         }
 
         return cardStack
+    }
+
+    private fun openMemeEditor(template: MemeTemplate) {
+        try {
+            val fxmlLoader = FXMLLoader(HelloApplication::class.java.getResource("memes-editor.fxml"))
+            val root = fxmlLoader.load<Parent>()
+            val editorController = fxmlLoader.getController<MemesEditorController>()
+            editorController.setTemplate(template)
+
+            val stage = Stage().apply {
+                initModality(Modality.APPLICATION_MODAL)
+                initOwner(rootContainer.scene?.window as? Stage ?: return)
+                title = "Editor de Memes - ${template.title}"
+                scene = Scene(root, 900.0, 700.0)
+                minWidth = 800.0
+                minHeight = 600.0
+            }
+
+            // Apply the same stylesheet
+            val customCss = HelloApplication::class.java.getResource("style.css")
+            if (customCss != null) {
+                stage.scene?.stylesheets?.add(customCss.toExternalForm())
+            }
+
+            stage.showAndWait()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
