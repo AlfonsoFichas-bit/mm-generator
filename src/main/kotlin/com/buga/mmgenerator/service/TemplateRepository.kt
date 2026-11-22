@@ -16,6 +16,9 @@ object TemplateRepository {
             return allTemplates + customTemplates
         }
 
+        FavoritesDatabase.initDatabase()
+        val favoriteFilenames = FavoritesDatabase.getFavoriteFilenames()
+
         try {
             // First attempt to read from local assets/bundled directory
             val localConf = File("assets/bundled/+0A_memetastic.conf.json")
@@ -44,7 +47,8 @@ object TemplateRepository {
                         MemeTemplate(
                             title = title,
                             filename = filename,
-                            tags = tags
+                            tags = tags,
+                            isFavorite = favoriteFilenames.contains(filename)
                         )
                     )
                 }
@@ -54,6 +58,17 @@ object TemplateRepository {
         }
 
         return allTemplates + customTemplates
+    }
+
+    fun setFavorite(template: MemeTemplate, isFavorite: Boolean) {
+        template.isFavorite = isFavorite
+        FavoritesDatabase.setFavorite(template.filename, isFavorite, template.title)
+    }
+
+    fun toggleFavorite(template: MemeTemplate): Boolean {
+        val newStatus = !template.isFavorite
+        setFavorite(template, newStatus)
+        return newStatus
     }
 
     fun addCustomTemplate(file: File): MemeTemplate {
@@ -134,5 +149,6 @@ object TemplateRepository {
     fun clearForTesting() {
         allTemplates.clear()
         customTemplates.clear()
+        FavoritesDatabase.clearAllFavorites()
     }
 }

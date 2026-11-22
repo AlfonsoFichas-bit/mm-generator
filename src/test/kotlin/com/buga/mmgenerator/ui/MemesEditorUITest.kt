@@ -8,10 +8,13 @@ import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.Slider
 import javafx.scene.control.TextArea
+import javafx.scene.image.ImageView
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import org.junit.jupiter.api.AfterAll
@@ -111,12 +114,20 @@ class MemesEditorUITest : ApplicationTest() {
         val textNode = activeWrapper.children.filterIsInstance<Text>().first()
         assert(textNode.text == "HELLO WORLD") { "Default uppercase should render 'HELLO WORLD', found '${textNode.text}'" }
 
-        // Toggle uppercase button
+        // Toggle uppercase button to lowercase
         val btnUppercase = lookup("#btnUppercase").query<Button>()
         clickOn("#btnUppercase")
         WaitForAsyncUtils.waitForFxEvents()
 
-        assert(textNode.text == "Hello World") { "After toggling off uppercase, text should be 'Hello World', found '${textNode.text}'" }
+        assert(textNode.text == "hello world") { "After toggling to lowercase, text should be 'hello world', found '${textNode.text}'" }
+        assert(textContentArea.text == "hello world") { "After toggling to lowercase, textContentArea should be 'hello world', found '${textContentArea.text}'" }
+
+        // Toggle back to uppercase
+        clickOn("#btnUppercase")
+        WaitForAsyncUtils.waitForFxEvents()
+
+        assert(textNode.text == "HELLO WORLD") { "After toggling back to uppercase, text should be 'HELLO WORLD', found '${textNode.text}'" }
+        assert(textContentArea.text == "HELLO WORLD") { "After toggling back to uppercase, textContentArea should be 'HELLO WORLD', found '${textContentArea.text}'" }
     }
 
     @Test
@@ -176,5 +187,49 @@ class MemesEditorUITest : ApplicationTest() {
         val memeContainer = lookup("#memeContainer").query<Pane>()
         val wrappers = memeContainer.children.filterIsInstance<StackPane>()
         assert(wrappers.size == 2) { "Reset should restore classic preset with 2 text nodes, found ${wrappers.size}" }
+    }
+
+    @Test
+    fun `top banner preset button switches to top banner style and configures layout`() {
+        WaitForAsyncUtils.waitForFxEvents()
+
+        clickOn("#btnTopBannerPreset")
+        WaitForAsyncUtils.waitForFxEvents()
+
+        val memeContainer = lookup("#memeContainer").query<Pane>()
+        assert(memeContainer != null) { "memeContainer Pane should exist" }
+
+        val imageView = lookup("#imageView").query<ImageView>()
+        assert(imageView.layoutY > 0.0) { "ImageView layoutY should be pushed down by banner, but was ${imageView.layoutY}" }
+
+        val bannerOptionsContainer = lookup("#bannerOptionsContainer").query<VBox>()
+        assert(bannerOptionsContainer.isVisible) { "bannerOptionsContainer should be visible when top banner is active" }
+
+        val textWrappers = memeContainer.children.filterIsInstance<StackPane>()
+        assert(textWrappers.size == 1) { "Top banner preset should create 1 text wrapper, but found ${textWrappers.size}" }
+
+        val textNode = textWrappers.first().children.filterIsInstance<Text>().firstOrNull()
+        assert(textNode != null && textNode.text.contains("FRANJA SUPERIOR", ignoreCase = true)) {
+            "Banner text should contain 'FRANJA SUPERIOR', found '${textNode?.text}'"
+        }
+
+        // Adjust banner height slider
+        val sliderBannerHeight = lookup("#sliderBannerHeight").query<Slider>()
+        val initialBannerY = imageView.layoutY
+        interact {
+            sliderBannerHeight.value = 160.0
+        }
+        WaitForAsyncUtils.waitForFxEvents()
+        assert(imageView.layoutY == 160.0) { "ImageView layoutY should update to 160.0, but was ${imageView.layoutY}" }
+
+        // Switch back to Classic preset
+        clickOn("#btnClassicPreset")
+        WaitForAsyncUtils.waitForFxEvents()
+
+        assert(imageView.layoutY == 0.0) { "Classic preset should reset imageView layoutY to 0.0, but was ${imageView.layoutY}" }
+        assert(!bannerOptionsContainer.isVisible) { "bannerOptionsContainer should be hidden for classic preset" }
+
+        val classicWrappers = memeContainer.children.filterIsInstance<StackPane>()
+        assert(classicWrappers.size == 2) { "Classic preset should restore 2 text wrappers, found ${classicWrappers.size}" }
     }
 }

@@ -7,6 +7,8 @@ module com.buga.mmgenerator {
     requires atlantafx.base;
     requires com.google.gson;
     requires java.desktop;
+    requires java.sql;
+    requires org.xerial.sqlitejdbc;
 
     requires org.controlsfx.controls;
     requires org.kordamp.ikonli.javafx;

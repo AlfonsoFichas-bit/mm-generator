@@ -172,15 +172,43 @@
                 <ScrollPane fitToWidth="true" styleClass="gallery-scroll" prefWidth="330.0" minWidth="330.0" maxWidth="330.0" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
                     <content>
                         <VBox fx:id="sidebar" styleClass="editor-sidebar" spacing="12.0">
-                            <!-- Group 1: Presets Rápidos -->
+                            <!-- Group 1: Estilo / Plantilla -->
                             <VBox styleClass="gtk-group-card" spacing="8.0">
                                 <children>
-                                    <Label text="PLANTILLAS RÁPIDAS" styleClass="gtk-group-title" />
+                                    <Label text="ESTILO / PLANTILLA" styleClass="gtk-group-title" />
                                     <HBox spacing="8.0">
                                         <children>
-                                            <Button fx:id="btnClassicPreset" text="Meme Clásico (Arriba/Abajo)" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                            <Button fx:id="btnClassicPreset" text="Meme Clásico" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                                                <tooltip>
+                                                    <Tooltip text="Meme clásico con texto superior e inferior sobre la imagen" />
+                                                </tooltip>
+                                            </Button>
+                                            <Button fx:id="btnTopBannerPreset" text="Franja Superior" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                                                <tooltip>
+                                                    <Tooltip text="Meme con franja de texto superior y la imagen debajo" />
+                                                </tooltip>
+                                            </Button>
                                         </children>
                                     </HBox>
+                                    <VBox fx:id="bannerOptionsContainer" spacing="6.0" visible="false" managed="false">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                <children>
+                                                    <Label text="Color de Franja" styleClass="card-title" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <ColorPicker fx:id="colorPickerBanner" styleClass="combo-box" />
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                                <children>
+                                                    <Label text="Alto de Franja" styleClass="card-title" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Label fx:id="lblBannerHeight" text="100 px" styleClass="card-title" />
+                                                </children>
+                                            </HBox>
+                                            <Slider fx:id="sliderBannerHeight" min="50.0" max="250.0" value="100.0" maxWidth="Infinity" />
+                                        </children>
+                                    </VBox>
                                 </children>
                             </VBox>
 

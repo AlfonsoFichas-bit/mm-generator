@@ -6,12 +6,19 @@ import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
+import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 
 class HelloApplication : Application() {
     override fun start(stage: Stage) {
+        // Set application icon
+        val iconStream = HelloApplication::class.java.getResourceAsStream("icon.png")
+        if (iconStream != null) {
+            stage.icons.add(Image(iconStream))
+        }
+
         // Apply AtlantaFX PrimerDark base
         Application.setUserAgentStylesheet(PrimerDark().userAgentStylesheet)
 

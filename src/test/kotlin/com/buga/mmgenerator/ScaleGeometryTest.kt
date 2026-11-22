@@ -410,4 +410,30 @@ class ScaleGeometryTest {
         val scale = minOf(targetMaxW / zeroWidth, targetMaxH / zeroWidth, 1.0)
         assertEquals(1.0, scale, 1e-10, "Should not crash or produce invalid scale")
     }
+
+    /**
+     * Tests geometry calculations for meme with top banner.
+     */
+    @Test
+    fun testTopBannerGeometryAndExportScaling() {
+        val originalWidth = 1200.0
+        val originalHeight = 800.0
+        val targetMaxW = 640.0
+        val targetMaxH = 500.0
+
+        val scale = minOf(targetMaxW / originalWidth, targetMaxH / originalHeight, 1.0)
+        val displayedWidth = originalWidth * scale
+        val displayedHeight = originalHeight * scale
+
+        val bannerHeight = 100.0
+        val totalDisplayedHeight = displayedHeight + bannerHeight
+
+        val exportScale = maxOf(originalWidth / displayedWidth, 1.0)
+        val exportedWidth = displayedWidth * exportScale
+        val exportedHeight = totalDisplayedHeight * exportScale
+
+        assertEquals(1200.0, exportedWidth, 1e-10)
+        assertEquals(800.0 + (bannerHeight * exportScale), exportedHeight, 1e-10)
+        assertEquals(bannerHeight * exportScale, exportedHeight - originalHeight, 1e-10)
+    }
 }

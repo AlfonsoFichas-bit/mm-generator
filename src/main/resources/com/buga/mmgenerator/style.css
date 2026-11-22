@@ -339,11 +339,17 @@
 }
 
 .gtk-button-active {
-    -fx-background-color: #3a3a3a;
+    -fx-background-color: #264f78;
     -fx-border-color: #3584e4;
     -fx-border-radius: 6px;
     -fx-border-width: 1px;
     -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.gtk-button-active:hover {
+    -fx-background-color: #2d5d8f;
+    -fx-border-color: #4790f5;
 }
 
 /* Editor Workspace (Center Canvas) */

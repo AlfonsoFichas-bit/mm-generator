@@ -51,3 +51,10 @@ openspec/
 
 # Local machine configuration
 local.properties
+
+# Packaging build artifacts & caches
+*.flatpak
+*.snap
+.flatpak-builder/
+.snapcraft/
+

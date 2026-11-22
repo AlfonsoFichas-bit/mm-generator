@@ -143,6 +143,21 @@ class MemesEditorController {
     private lateinit var btnClassicPreset: Button
 
     @FXML
+    private lateinit var btnTopBannerPreset: Button
+
+    @FXML
+    private lateinit var bannerOptionsContainer: VBox
+
+    @FXML
+    private lateinit var colorPickerBanner: ColorPicker
+
+    @FXML
+    private lateinit var lblBannerHeight: Label
+
+    @FXML
+    private lateinit var sliderBannerHeight: Slider
+
+    @FXML
     private lateinit var textPropertiesGroup: VBox
 
     @FXML
@@ -219,7 +234,23 @@ class MemesEditorController {
 
     private var toastHidePause: PauseTransition? = null
 
+    enum class MemeStyle {
+        CLASSIC,
+        TOP_BANNER
+    }
+
     // State
+    private var currentStyle = MemeStyle.CLASSIC
+    private var bannerHeight = 0.0
+    private var bannerColor: Color = Color.WHITE
+    private val bannerBackground = Rectangle().apply {
+        fill = Color.WHITE
+        stroke = null
+        strokeWidth = 0.0
+        isMouseTransparent = true
+        isVisible = false
+    }
+
     private var currentTemplate: MemeTemplate? = null
     private var currentStage: Stage? = null
     private var nextTextId = 1
@@ -347,6 +378,9 @@ class MemesEditorController {
 
     @FXML
     fun initialize() {
+        if (!memeContainer.children.contains(bannerBackground)) {
+            memeContainer.children.add(0, bannerBackground)
+        }
         setupIcons()
         setupFontFamilyList()
         setupColorPresets()
@@ -550,8 +584,9 @@ class MemesEditorController {
     private fun fitZoom() {
         val availW = workspaceScroll.viewportBounds.width - 60.0
         val availH = workspaceScroll.viewportBounds.height - 80.0
-        if (availW > 100.0 && availH > 100.0 && displayedWidth > 0 && displayedHeight > 0) {
-            val scale = minOf(availW / displayedWidth, availH / displayedHeight, 1.5)
+        val totalH = displayedHeight + bannerHeight
+        if (availW > 100.0 && availH > 100.0 && displayedWidth > 0 && totalH > 0) {
+            val scale = minOf(availW / displayedWidth, availH / totalH, 1.5)
             setZoom(scale)
         }
     }
@@ -559,11 +594,21 @@ class MemesEditorController {
     private fun setupEventHandlers() {
         // Quick add button in header
         btnQuickAddText.setOnAction {
-            val item = addTextItem("NUEVA FRASE", 0.0, 0.0)
+            val totalH = displayedHeight + bannerHeight
+            val item = addTextItem(
+                content = "NUEVA FRASE",
+                x = 0.0,
+                y = 0.0,
+                fontSize = 36.0,
+                fontFamily = fontComboBox.value ?: "Impact",
+                fillColor = colorPickerFill.value ?: Color.WHITE,
+                strokeWidth = if (currentStyle == MemeStyle.TOP_BANNER) 0.0 else 2.5,
+                isUppercase = true
+            )
             val w = if (item.wrapper.width > 0) item.wrapper.width else item.textNode.layoutBounds.width + 16.0
             val h = if (item.wrapper.height > 0) item.wrapper.height else item.textNode.layoutBounds.height + 8.0
             item.x = ((displayedWidth - w) / 2.0).coerceAtLeast(10.0)
-            item.y = ((displayedHeight - h) / 2.0).coerceAtLeast(10.0)
+            item.y = ((totalH - h) / 2.0).coerceAtLeast(10.0)
             item.wrapper.layoutX = item.x
             item.wrapper.layoutY = item.y
         }
@@ -573,9 +618,62 @@ class MemesEditorController {
             applyClassicPreset()
         }
 
+        // Top banner meme preset
+        btnTopBannerPreset.setOnAction {
+            applyTopBannerPreset()
+        }
+
+        // Color picker for top banner
+        colorPickerBanner.value = Color.WHITE
+        colorPickerBanner.setOnAction {
+            val newColor = colorPickerBanner.value ?: Color.WHITE
+            bannerColor = newColor
+            bannerBackground.fill = newColor
+            selectedItem?.let { item ->
+                if (item.y < bannerHeight) {
+                    val isDark = isDarkColor(bannerColor)
+                    if (isDark && item.fillColor == Color.BLACK) {
+                        item.fillColor = Color.WHITE
+                        colorPickerFill.value = Color.WHITE
+                        item.refresh(displayedWidth)
+                    } else if (!isDark && item.fillColor == Color.WHITE) {
+                        item.fillColor = Color.BLACK
+                        colorPickerFill.value = Color.BLACK
+                        item.refresh(displayedWidth)
+                    }
+                }
+            }
+        }
+
+        // Slider for banner height
+        sliderBannerHeight.valueProperty().addListener { _, _, newVal ->
+            if (currentStyle == MemeStyle.TOP_BANNER) {
+                val oldHeight = bannerHeight
+                bannerHeight = newVal.toDouble()
+                lblBannerHeight.text = "${bannerHeight.toInt()} px"
+                updateContainerDimensions()
+
+                val diff = bannerHeight - oldHeight
+                textItems.forEach { item ->
+                    if (item.y < oldHeight) {
+                        val boxH = if (item.wrapper.height > 0) item.wrapper.height else item.textNode.layoutBounds.height + 8.0
+                        item.y = ((bannerHeight - boxH) / 2.0).coerceAtLeast(4.0)
+                        item.wrapper.layoutY = item.y
+                    } else {
+                        item.y = (item.y + diff).coerceAtLeast(bannerHeight)
+                        item.wrapper.layoutY = item.y
+                    }
+                }
+            }
+        }
+
         // Reset button
         btnReset.setOnAction {
-            applyClassicPreset()
+            if (currentStyle == MemeStyle.TOP_BANNER) {
+                applyTopBannerPreset()
+            } else {
+                applyClassicPreset()
+            }
         }
 
         // Uppercase toggle
@@ -583,6 +681,13 @@ class MemesEditorController {
             selectedItem?.let { item ->
                 item.isUppercase = !item.isUppercase
                 btnUppercase.text = if (item.isUppercase) "MAYÚS" else "Minús"
+                btnUppercase.tooltip = Tooltip(if (item.isUppercase) "Cambiar a minúsculas" else "Cambiar a mayúsculas")
+                val current = textContentArea.text ?: item.content
+                val converted = if (item.isUppercase) current.uppercase() else current.lowercase()
+                val caretPos = textContentArea.caretPosition
+                item.content = converted
+                textContentArea.text = converted
+                textContentArea.positionCaret(caretPos.coerceAtMost(converted.length))
                 item.updateTextOnly(displayedWidth)
             }
         }
@@ -592,6 +697,7 @@ class MemesEditorController {
             selectedItem?.let { item ->
                 item.content = newText ?: ""
                 item.updateTextOnly(displayedWidth)
+                checkAutoAdjustBannerHeight(item)
             }
         }
 
@@ -606,6 +712,7 @@ class MemesEditorController {
             selectedItem?.let { item ->
                 item.fontSize = size
                 item.refresh(displayedWidth)
+                checkAutoAdjustBannerHeight(item)
             }
         }
 
@@ -634,9 +741,18 @@ class MemesEditorController {
                     deselect()
                 } else {
                     val localPt = memeContainer.sceneToLocal(e.sceneX, e.sceneY)
+                    val totalH = displayedHeight + bannerHeight
                     val clickX = (localPt.x - 80.0).coerceIn(10.0, displayedWidth - 100.0)
-                    val clickY = (localPt.y - 20.0).coerceIn(10.0, displayedHeight - 40.0)
-                    addTextItem("TEXTO AQUÍ", clickX, clickY)
+                    val clickY = (localPt.y - 20.0).coerceIn(10.0, totalH - 40.0)
+                    val isInsideBanner = (localPt.y < bannerHeight)
+                    addTextItem(
+                        content = "TEXTO AQUÍ",
+                        x = clickX,
+                        y = clickY,
+                        fontSize = if (isInsideBanner) 26.0 else 36.0,
+                        fillColor = if (isInsideBanner && !isDarkColor(bannerColor)) Color.BLACK else (colorPickerFill.value ?: Color.WHITE),
+                        strokeWidth = if (isInsideBanner) 0.0 else 2.5
+                    )
                 }
             }
         }
@@ -690,6 +806,59 @@ class MemesEditorController {
         }
     }
 
+    private fun updateContainerDimensions() {
+        val totalH = displayedHeight + bannerHeight
+
+        memeFrame.prefWidth = displayedWidth
+        memeFrame.prefHeight = totalH
+        memeFrame.minWidth = displayedWidth
+        memeFrame.minHeight = totalH
+        memeFrame.maxWidth = displayedWidth
+        memeFrame.maxHeight = totalH
+
+        memeContainer.prefWidth = displayedWidth
+        memeContainer.prefHeight = totalH
+        memeContainer.minWidth = displayedWidth
+        memeContainer.minHeight = totalH
+        memeContainer.maxWidth = displayedWidth
+        memeContainer.maxHeight = totalH
+
+        memeContainer.clip = Rectangle(displayedWidth, totalH)
+
+        bannerBackground.x = 0.0
+        bannerBackground.y = 0.0
+        bannerBackground.width = displayedWidth
+        bannerBackground.height = bannerHeight
+        bannerBackground.fill = bannerColor
+        bannerBackground.isVisible = (bannerHeight > 0.0)
+
+        imageView.layoutX = 0.0
+        imageView.layoutY = bannerHeight
+
+        guideOverlay.prefWidth = displayedWidth
+        guideOverlay.prefHeight = totalH
+        guideOverlay.minWidth = displayedWidth
+        guideOverlay.minHeight = totalH
+        guideOverlay.maxWidth = displayedWidth
+        guideOverlay.maxHeight = totalH
+        guideLineVertical.endY = totalH
+        guideLineHorizontal.endX = displayedWidth
+    }
+
+    private fun checkAutoAdjustBannerHeight(item: MemeTextItem) {
+        if (currentStyle == MemeStyle.TOP_BANNER && item.y < bannerHeight) {
+            val needed = item.textNode.layoutBounds.height + 32.0
+            if (needed > sliderBannerHeight.value) {
+                sliderBannerHeight.value = needed.coerceAtMost(sliderBannerHeight.max)
+            }
+        }
+    }
+
+    private fun isDarkColor(c: Color): Boolean {
+        val luminance = 0.299 * c.red + 0.587 * c.green + 0.114 * c.blue
+        return luminance < 0.5
+    }
+
     private fun applyImageDimensions(image: Image) {
         originalWidth = image.width.coerceAtLeast(10.0)
         originalHeight = image.height.coerceAtLeast(10.0)
@@ -705,46 +874,47 @@ class MemesEditorController {
         imageView.fitWidth = displayedWidth
         imageView.fitHeight = displayedHeight
 
-        memeFrame.prefWidth = displayedWidth
-        memeFrame.prefHeight = displayedHeight
-        memeFrame.minWidth = displayedWidth
-        memeFrame.minHeight = displayedHeight
-        memeFrame.maxWidth = displayedWidth
-        memeFrame.maxHeight = displayedHeight
-
-        memeContainer.prefWidth = displayedWidth
-        memeContainer.prefHeight = displayedHeight
-        memeContainer.minWidth = displayedWidth
-        memeContainer.minHeight = displayedHeight
-        memeContainer.maxWidth = displayedWidth
-        memeContainer.maxHeight = displayedHeight
-
-        // Clip texts inside meme bounds without corner cutouts
-        memeContainer.clip = Rectangle(displayedWidth, displayedHeight)
-
         if (!memeFrame.children.contains(guideOverlay)) {
             guideOverlay.children.setAll(guideLineVertical, guideLineHorizontal, guideCenterDot)
             memeFrame.children.add(guideOverlay)
         }
-        guideOverlay.prefWidth = displayedWidth
-        guideOverlay.prefHeight = displayedHeight
-        guideOverlay.minWidth = displayedWidth
-        guideOverlay.minHeight = displayedHeight
-        guideOverlay.maxWidth = displayedWidth
-        guideOverlay.maxHeight = displayedHeight
+        if (!memeContainer.children.contains(bannerBackground)) {
+            memeContainer.children.add(0, bannerBackground)
+        }
 
+        updateContainerDimensions()
         resetZoom()
-        applyClassicPreset()
+
+        if (currentStyle == MemeStyle.TOP_BANNER) {
+            applyTopBannerPreset()
+        } else {
+            applyClassicPreset()
+        }
     }
 
     private fun applyClassicPreset() {
+        currentStyle = MemeStyle.CLASSIC
+        btnClassicPreset.styleClass.remove("gtk-button-active")
+        btnClassicPreset.styleClass.add("gtk-button-active")
+        btnTopBannerPreset.styleClass.remove("gtk-button-active")
+
+        bannerOptionsContainer.isVisible = false
+        bannerOptionsContainer.isManaged = false
+
+        bannerHeight = 0.0
+        updateContainerDimensions()
+
         clearAllTexts()
 
         val topItem = addTextItem(
             content = "TEXTO SUPERIOR",
             x = 0.0,
             y = 12.0,
-            fontSize = 38.0
+            fontSize = 38.0,
+            fontFamily = "Impact",
+            fillColor = Color.WHITE,
+            strokeWidth = 2.5,
+            isUppercase = true
         )
         val topW = topItem.textNode.layoutBounds.width + 16.0
         topItem.x = ((displayedWidth - topW) / 2.0).coerceAtLeast(10.0)
@@ -754,7 +924,11 @@ class MemesEditorController {
             content = "TEXTO INFERIOR",
             x = 0.0,
             y = (displayedHeight - 65.0).coerceAtLeast(10.0),
-            fontSize = 38.0
+            fontSize = 38.0,
+            fontFamily = "Impact",
+            fillColor = Color.WHITE,
+            strokeWidth = 2.5,
+            isUppercase = true
         )
         val bottomW = bottomItem.textNode.layoutBounds.width + 16.0
         bottomItem.x = ((displayedWidth - bottomW) / 2.0).coerceAtLeast(10.0)
@@ -763,22 +937,69 @@ class MemesEditorController {
         selectItem(topItem)
     }
 
+    private fun applyTopBannerPreset() {
+        currentStyle = MemeStyle.TOP_BANNER
+        btnTopBannerPreset.styleClass.remove("gtk-button-active")
+        btnTopBannerPreset.styleClass.add("gtk-button-active")
+        btnClassicPreset.styleClass.remove("gtk-button-active")
+
+        bannerOptionsContainer.isVisible = true
+        bannerOptionsContainer.isManaged = true
+
+        bannerHeight = sliderBannerHeight.value.coerceIn(50.0, 300.0)
+        bannerColor = colorPickerBanner.value ?: Color.WHITE
+
+        updateContainerDimensions()
+        clearAllTexts()
+
+        val defaultFont = fontComboBox.items.firstOrNull {
+            it.equals("Arial", ignoreCase = true) ||
+            it.equals("Roboto", ignoreCase = true) ||
+            it.equals("Cantarell", ignoreCase = true)
+        } ?: (fontComboBox.value ?: "Impact")
+
+        val textColor = if (isDarkColor(bannerColor)) Color.WHITE else Color.BLACK
+
+        val bannerItem = addTextItem(
+            content = "TEXTO DE LA FRANJA SUPERIOR",
+            x = 0.0,
+            y = 0.0,
+            fontSize = 26.0,
+            fontFamily = defaultFont,
+            fillColor = textColor,
+            strokeWidth = 0.0,
+            isUppercase = true
+        )
+
+        val textW = bannerItem.textNode.layoutBounds.width + 16.0
+        val textH = bannerItem.textNode.layoutBounds.height + 8.0
+        bannerItem.x = ((displayedWidth - textW) / 2.0).coerceAtLeast(10.0)
+        bannerItem.y = ((bannerHeight - textH) / 2.0).coerceAtLeast(4.0)
+        bannerItem.wrapper.layoutX = bannerItem.x
+        bannerItem.wrapper.layoutY = bannerItem.y
+
+        selectItem(bannerItem)
+    }
+
     private fun addTextItem(
         content: String,
         x: Double,
         y: Double,
         fontSize: Double = 36.0,
-        fontFamily: String = fontComboBox.value ?: "Impact"
+        fontFamily: String = fontComboBox.value ?: "Impact",
+        fillColor: Color = colorPickerFill.value ?: Color.WHITE,
+        strokeWidth: Double = 2.5,
+        isUppercase: Boolean = true
     ): MemeTextItem {
         val item = MemeTextItem(
             id = nextTextId++,
             content = content,
             fontName = fontFamily,
             fontSize = fontSize,
-            isUppercase = true,
-            fillColor = colorPickerFill.value ?: Color.WHITE,
+            isUppercase = isUppercase,
+            fillColor = fillColor,
             strokeColor = Color.BLACK,
-            strokeWidth = 2.5,
+            strokeWidth = strokeWidth,
             alignment = TextAlignment.CENTER,
             x = x,
             y = y
@@ -821,8 +1042,9 @@ class MemesEditorController {
                 val boxW = if (item.wrapper.width > 0) item.wrapper.width else item.textNode.layoutBounds.width + 16.0
                 val boxH = if (item.wrapper.height > 0) item.wrapper.height else item.textNode.layoutBounds.height + 8.0
 
+                val totalCanvasH = displayedHeight + bannerHeight
                 val canvasCenterX = displayedWidth / 2.0
-                val canvasCenterY = displayedHeight / 2.0
+                val canvasCenterY = totalCanvasH / 2.0
 
                 val snapThreshold = 8.0
 
@@ -861,6 +1083,10 @@ class MemesEditorController {
                     newY = canvasCenterY - boxH / 2.0
                     showHorizontalGuide(canvasCenterY)
                     snappedY = true
+                } else if (bannerHeight > 0.0 && abs(currentCenterY - (bannerHeight / 2.0)) <= snapThreshold) {
+                    newY = (bannerHeight / 2.0) - boxH / 2.0
+                    showHorizontalGuide(bannerHeight / 2.0)
+                    snappedY = true
                 } else {
                     val otherY = textItems.asSequence()
                         .filter { it != item }
@@ -883,7 +1109,7 @@ class MemesEditorController {
 
                 // Clamping so text doesn't escape entirely
                 newX = newX.coerceIn(-boxW + 20.0, displayedWidth - 20.0)
-                newY = newY.coerceIn(0.0, displayedHeight - 20.0)
+                newY = newY.coerceIn(0.0, totalCanvasH - 20.0)
 
                 item.x = newX
                 item.y = newY
@@ -904,10 +1130,11 @@ class MemesEditorController {
     }
 
     private fun showVerticalGuide(x: Double) {
+        val totalCanvasH = displayedHeight + bannerHeight
         guideLineVertical.startX = x
         guideLineVertical.endX = x
         guideLineVertical.startY = 0.0
-        guideLineVertical.endY = displayedHeight
+        guideLineVertical.endY = totalCanvasH
         guideLineVertical.isVisible = true
         updateCenterDot()
     }
@@ -966,8 +1193,11 @@ class MemesEditorController {
 
         // Populate sidebar
         textPropertiesGroup.isDisable = false
-        textContentArea.text = item.content
+        val displayContent = if (item.isUppercase) item.content.uppercase() else item.content
+        item.content = displayContent
+        textContentArea.text = displayContent
         btnUppercase.text = if (item.isUppercase) "MAYÚS" else "Minús"
+        btnUppercase.tooltip = Tooltip(if (item.isUppercase) "Cambiar a minúsculas" else "Cambiar a mayúsculas")
         fontComboBox.value = item.fontName
         sliderFontSize.value = item.fontSize
         lblFontSize.text = "${item.fontSize.toInt()} px"
@@ -1178,8 +1408,12 @@ class MemesEditorController {
     private fun showToastNotification(file: File) {
         toastHidePause?.stop()
 
+        val exportScale = maxOf(originalWidth / displayedWidth, 1.0)
+        val exportW = (displayedWidth * exportScale).toInt()
+        val exportH = ((displayedHeight + bannerHeight) * exportScale).toInt()
+
         lblToastTitle.text = "¡Meme guardado con éxito!"
-        lblToastSubtitle.text = "${file.name}  •  ${originalWidth.toInt()} × ${originalHeight.toInt()} px"
+        lblToastSubtitle.text = "${file.name}  •  $exportW × $exportH px"
 
         btnToastOpenFolder.setOnAction {
             openInFileManager(file)

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.buga.mmgenerator</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>MM Generator</name>
+  <summary>Creador y editor de memes clásico y moderno</summary>
+  <description>
+    <p>
+      MM Generator es una aplicación de escritorio nativa, rápida y ligera diseñada para crear memes en Linux y escritorio.
+      Soporta tanto el estilo clásico (texto superior e inferior en fuente Impact) como el formato moderno de franja superior.
+    </p>
+    <p>Características principales:</p>
+    <ul>
+      <li>Estilo clásico y estilo moderno con franja superior configurable.</li>
+      <li>Biblioteca de 49 plantillas clásicas (Rage comics, Advice animals, etc.).</li>
+      <li>Soporte para importar imágenes personalizadas.</li>
+      <li>Persistencia local de favoritos con SQLite sin anuncios ni telemetría.</li>
+      <li>Exportación en alta calidad en formatos PNG y JPG.</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.buga.mmgenerator.desktop</launchable>
+  <provides>
+    <binary>mm-generator</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="1.0.0" date="2026-11-22">
+      <description>
+        <p>Primera versión estable con soporte para franja superior, persistencia SQLite y biblioteca de plantillas.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -336,7 +336,7 @@ class MainController {
 
             setOnAction { e ->
                 e.consume()
-                template.isFavorite = !template.isFavorite
+                TemplateRepository.toggleFavorite(template)
                 graphic = if (template.isFavorite) {
                     Icons.create(Icons.STAR, Color.web("#f5c211"), 15.0)
                 } else {
@@ -407,6 +407,7 @@ class MainController {
                 this.scene = scene
                 minWidth = 850.0
                 minHeight = 600.0
+                ownerStage.icons.forEach { icons.add(it) }
             }
 
             // Apply the same stylesheet

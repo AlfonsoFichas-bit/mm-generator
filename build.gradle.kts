@@ -45,6 +45,7 @@ dependencies {
     implementation("eu.hansolo:tilesfx:21.0.9") {
         exclude(group = "org.openjfx")
     }
+    implementation("org.xerial:sqlite-jdbc:3.47.2.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

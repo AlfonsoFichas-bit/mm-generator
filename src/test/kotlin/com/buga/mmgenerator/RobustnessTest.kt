@@ -46,6 +46,10 @@ class RobustnessTest : ApplicationTest() {
         controller.setTemplate(template)
 
         val scene = Scene(root, 1200.0, 800.0)
+        val customCss = HelloApplication::class.java.getResource("style.css")
+        if (customCss != null) {
+            scene.stylesheets.add(customCss.toExternalForm())
+        }
         stage.scene = scene
         stage.show()
     }
@@ -147,6 +151,10 @@ class RobustnessTest : ApplicationTest() {
                 iterController.setTemplate(template)
 
                 val scene = Scene(root, 800.0, 600.0)
+                val customCss = HelloApplication::class.java.getResource("style.css")
+                if (customCss != null) {
+                    scene.stylesheets.add(customCss.toExternalForm())
+                }
                 dummyStage.scene = scene
                 dummyStage.show()
                 dummyStage.close()
