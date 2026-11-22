@@ -1226,22 +1226,35 @@ class MemesEditorController {
     }
 
     private fun openInFileManager(file: File) {
-        try {
-            val os = System.getProperty("os.name").lowercase()
-            if (os.contains("win")) {
-                ProcessBuilder("explorer.exe", "/select,", file.absolutePath).start()
-            } else if (os.contains("mac")) {
-                ProcessBuilder("open", "-R", file.absolutePath).start()
-            } else {
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                    Desktop.getDesktop().open(file.parentFile)
-                } else {
-                    ProcessBuilder("xdg-open", file.parentFile.absolutePath).start()
+        // Run off the JavaFX Application Thread so the UI never freezes
+        // while the OS file manager is being launched.
+        Thread {
+            try {
+                val os = System.getProperty("os.name").lowercase()
+                val command = when {
+                    os.contains("win") -> listOf("explorer.exe", "/select,", file.absolutePath)
+                    os.contains("mac") -> listOf("open", "-R", file.absolutePath)
+                    else -> listOf("xdg-open", file.parentFile.absolutePath)
                 }
+                val process = ProcessBuilder(command).apply {
+                    redirectErrorStream(true)
+                }.start()
+                // Consume the process output on a separate thread to avoid
+                // blocking on a full pipe buffer.
+                Thread {
+                    try {
+                        process.inputStream.bufferedReader().use { it.readText() }
+                    } catch (_: Exception) {
+                    }
+                }.apply { isDaemon = true; start() }
+                // Don't block the worker thread forever if the launcher hangs.
+                if (!process.waitFor(8, java.util.concurrent.TimeUnit.SECONDS)) {
+                    process.destroyForcibly()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        }.apply { isDaemon = true; start() }
     }
 
     private fun showGtkSuccessAlert(owner: Stage?, file: File) {
