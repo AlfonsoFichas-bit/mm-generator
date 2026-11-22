@@ -1,0 +1,55 @@
+name: mm-generator
+base: core24
+version: '1.0.0'
+summary: Creador y editor de memes clásico y moderno
+description: |
+  MM Generator es una aplicación de escritorio nativa, rápida y ligera diseñada para crear memes.
+  Permite crear memes clásicos con texto superior e inferior en fuente Impact y memes modernos con franja superior,
+  con persistencia local de favoritos mediante SQLite y soporte para plantillas personalizadas.
+
+grade: stable
+confinement: strict
+icon: packaging/common/com.buga.mmgenerator.png
+
+apps:
+  mm-generator:
+    command: bin/mm-generator
+    extensions: [gnome]
+    desktop: usr/share/applications/com.buga.mmgenerator.desktop
+    environment:
+      JAVA_HOME: $SNAP/usr/lib/jvm/java-21-openjdk-amd64
+      PATH: $JAVA_HOME/bin:$PATH
+      JAVAFX_PLATFORM: gtk3
+    plugs:
+      - home
+      - opengl
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - audio-playback
+
+parts:
+  desktop-metadata:
+    plugin: nil
+    source: packaging/common
+    override-build: |
+      craftctl default
+      install -D -m 644 com.buga.mmgenerator.desktop $CRAFT_PART_INSTALL/usr/share/applications/com.buga.mmgenerator.desktop
+      install -D -m 644 com.buga.mmgenerator.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/com.buga.mmgenerator.metainfo.xml
+      install -D -m 644 com.buga.mmgenerator.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/com.buga.mmgenerator.svg
+      cp -r icons $CRAFT_PART_INSTALL/usr/share/
+
+  app:
+    after: [desktop-metadata]
+    plugin: nil
+    source: .
+    build-packages:
+      - openjdk-21-jdk-headless
+    stage-packages:
+      - openjdk-21-jre
+    override-build: |
+      craftctl default
+      chmod +x gradlew
+      ./gradlew installDist --no-daemon
+      cp -r build/install/mm-generator/* $CRAFT_PART_INSTALL/

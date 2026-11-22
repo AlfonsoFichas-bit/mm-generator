@@ -42,9 +42,14 @@ parts:
 
   app:
     after: [desktop-metadata]
-    plugin: dump
-    source: build/install/mm-generator
+    plugin: nil
+    source: .
+    build-packages:
+      - openjdk-21-jdk-headless
     stage-packages:
       - openjdk-21-jre
-    organize:
-      '*': .
+    override-build: |
+      craftctl default
+      chmod +x gradlew
+      ./gradlew installDist --no-daemon
+      cp -r build/install/mm-generator/* $CRAFT_PART_INSTALL/
