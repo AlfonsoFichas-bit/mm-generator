@@ -101,26 +101,38 @@ object TemplateRepository {
                 val lower = template.title.lowercase()
                 lower.startsWith("rage") || lower.contains("troll") || lower.contains("me_gusta")
             }
+
             "Animales" -> {
                 val lower = template.title.lowercase()
                 lower.contains("bear") || lower.contains("penguin") || lower.contains("doge") || lower.contains("potato")
             }
+
             "Personas" -> {
                 val lower = template.title.lowercase()
                 lower.contains("obama") || lower.contains("chang") || lower.contains("bean") ||
                         lower.contains("smith") || lower.contains("maroney") || lower.contains("kid")
             }
+
             "Caricaturas" -> {
                 val lower = template.title.lowercase()
                 lower.contains("meme") || lower.contains("sunflower") || lower.contains("artistic")
             }
+
             "Otras" -> {
-                !matchesCategory(template, "Rage Comics") &&
+                !template.isCustom &&
+                        !matchesCategory(template, "Rage Comics") &&
                         !matchesCategory(template, "Animales") &&
                         !matchesCategory(template, "Personas") &&
                         !matchesCategory(template, "Caricaturas")
             }
+
             else -> true
         }
+    }
+
+    // Test-only method to clear repository state for test isolation
+    fun clearForTesting() {
+        allTemplates.clear()
+        customTemplates.clear()
     }
 }

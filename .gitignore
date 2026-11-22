@@ -46,3 +46,5 @@ bin/
 ### Zed ###
 .zed/
 .delta/
+.agents/
+openspec/
