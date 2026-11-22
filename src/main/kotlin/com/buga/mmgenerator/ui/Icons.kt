@@ -22,6 +22,17 @@ object Icons {
     const val MAXIMIZE = "M3 3h14v14H3V3zm2 2v10h10V5H5z"
     const val CLOSE = "M15.35 4.65l-1.4-1.4L9 8.24 4.05 3.25l-1.4 1.4L7.6 9.64l-4.95 4.95 1.4 1.4L9 11.05l4.95 4.95 1.4-1.4-4.95-4.96z"
 
+    const val ARROW_BACK = "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+    const val PLUS = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+    const val MINUS = "M19 13H5v-2h14v2z"
+    const val TRASH = "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+    const val DOWNLOAD = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
+    const val REFRESH = "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+    const val ALIGN_LEFT = "M15 15H3v2h12v-2zm0-8H3v2h12V7zM3 13h18v-2H3v2zm0 8h18v-2H3v2zM3 3v2h18V3H3z"
+    const val ALIGN_CENTER = "M7 15v2h10v-2H7zm-4 6h18v-2H3v2zm0-8h18v-2H3v2zm4-6v2h10V7H7zM3 3v2h18V3H3z"
+    const val ALIGN_RIGHT = "M3 21h18v-2H3v2zm6-4h12v-2H9v2zm-6-4h18v-2H3v2zm6-4h12V7H9v2zM3 3v2h18V3H3z"
+    const val CHECK = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+
     fun create(
         pathData: String,
         fillColor: Color = Color.web("#d0d0d0"),

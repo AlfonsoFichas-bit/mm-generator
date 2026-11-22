@@ -68,10 +68,10 @@ object TemplateRepository {
         return template
     }
 
-    fun getImage(template: MemeTemplate): Image? {
+    fun getImage(template: MemeTemplate, backgroundLoading: Boolean = false): Image? {
         if (template.isCustom && template.customFile != null && template.customFile!!.exists()) {
             return try {
-                Image(template.customFile!!.toURI().toString(), true)
+                Image(template.customFile!!.toURI().toString(), backgroundLoading)
             } catch (e: Exception) {
                 null
             }
@@ -80,13 +80,13 @@ object TemplateRepository {
         // Check local disk first
         val localFile = File("assets/bundled/${template.filename}")
         if (localFile.exists()) {
-            return Image(localFile.toURI().toString(), true)
+            return Image(localFile.toURI().toString(), backgroundLoading)
         }
 
         // Try classpath resource
         val resource = javaClass.getResource("/assets/bundled/${template.filename}")
         if (resource != null) {
-            return Image(resource.toExternalForm(), true)
+            return Image(resource.toExternalForm(), backgroundLoading)
         }
 
         return null

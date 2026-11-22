@@ -1,85 +1,325 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane fx:id="editorPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.buga.mmgenerator.MemesEditorController">
-   <children>
-      <!-- Main content area -->
-      <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" spacing="10.0">
-         <!-- Top Toolbar -->
-         <HBox styleClass="editor-toolbar" spacing="10.0">
-                        <padding>
-                           <Insets top="10" right="10" bottom="10" left="10" />
-                        </padding>
+<StackPane fx:id="editorRoot" styleClass="window-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.buga.mmgenerator.MemesEditorController">
+    <children>
+        <BorderPane fx:id="mainLayout">
+            <!-- Header Bar (GTK Adwaita style) -->
+            <top>
+                <HBox fx:id="headerBar" styleClass="header-bar" spacing="10.0">
+                    <children>
+                        <!-- Left: Back Button & Reset -->
+                        <HBox alignment="CENTER_LEFT" spacing="6.0">
+                            <children>
+                                <Button fx:id="btnBack" styleClass="header-button" text=" Volver">
+                                    <graphic>
+                                        <StackPane fx:id="backIconContainer" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Regresar a la galería" />
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="btnReset" styleClass="header-button">
+                                    <graphic>
+                                        <StackPane fx:id="resetIconContainer" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Reiniciar plantilla" />
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </HBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <!-- Center: Title and Subtitle -->
+                        <VBox alignment="CENTER" spacing="1.0">
+                            <children>
+                                <Label text="Editor de Memes" styleClass="header-title" />
+                                <Label fx:id="lblTemplateTitle" text="Plantilla" styleClass="header-subtitle" />
+                            </children>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <!-- Right: Actions & Window Controls -->
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                            <children>
+                                <Button fx:id="btnQuickAddText" styleClass="gtk-button" text=" Frase">
+                                    <graphic>
+                                        <StackPane fx:id="addIconContainer" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Agregar nueva frase de texto" />
+                                    </tooltip>
+                                </Button>
+
+                                <Button fx:id="btnExport" styleClass="gtk-button-accent" text=" Exportar Meme">
+                                    <graphic>
+                                        <StackPane fx:id="exportIconContainer" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Guardar meme como imagen (PNG / JPG)" />
+                                    </tooltip>
+                                </Button>
+
+                                <HBox alignment="CENTER" spacing="6.0">
+                                    <children>
+                                        <Button fx:id="btnMinimize" styleClass="win-btn">
+                                            <graphic>
+                                                <StackPane fx:id="minimizeIconContainer" />
+                                            </graphic>
+                                        </Button>
+                                        <Button fx:id="btnMaximize" styleClass="win-btn">
+                                            <graphic>
+                                                <StackPane fx:id="maximizeIconContainer" />
+                                            </graphic>
+                                        </Button>
+                                        <Button fx:id="btnClose" styleClass="win-btn, win-btn-close">
+                                            <graphic>
+                                                <StackPane fx:id="closeIconContainer" />
+                                            </graphic>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </top>
+
+            <!-- Center: Workspace Canvas Viewport -->
+            <center>
+                <StackPane fx:id="workspaceRoot">
+                    <children>
+                        <ScrollPane fx:id="workspaceScroll" fitToWidth="true" fitToHeight="true" styleClass="gallery-scroll" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED">
+                            <content>
+                                <StackPane fx:id="workspacePane" styleClass="editor-workspace" alignment="CENTER">
+                                    <children>
+                                        <!-- Group wrapping memeContainer so scaled transforms are properly sized in viewport -->
+                                        <Group fx:id="zoomGroup">
+                                            <children>
+                                                <!-- Outer frame with visual dropshadow and border in editor -->
+                                                <StackPane fx:id="memeFrame" styleClass="meme-frame">
+                                                    <children>
+                                                        <!-- Clean inner container exported without borders or shadows -->
+                                                        <Pane fx:id="memeContainer" styleClass="meme-canvas-clean">
+                                                            <children>
+                                                                <ImageView fx:id="imageView" preserveRatio="true" smooth="true" />
+                                                            </children>
+                                                        </Pane>
+                                                    </children>
+                                                </StackPane>
+                                            </children>
+                                        </Group>
+                                    </children>
+                                </StackPane>
+                            </content>
+                        </ScrollPane>
+
+                        <!-- Floating Zoom Controls Pill: Fixed in the bottom-right corner of the workspace, completely outside the canvas -->
+                        <HBox fx:id="zoomControlsPill" styleClass="zoom-pill" alignment="CENTER" spacing="6.0" maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="BOTTOM_RIGHT">
+                            <StackPane.margin>
+                                <Insets bottom="20.0" right="24.0" />
+                            </StackPane.margin>
+                            <children>
+                                <Button fx:id="btnZoomOut" styleClass="zoom-btn" text="-">
+                                    <tooltip>
+                                        <Tooltip text="Alejar (Ctrl + Rueda abajo)" />
+                                    </tooltip>
+                                </Button>
+                                <Label fx:id="lblZoomPercent" styleClass="zoom-label" text="100%" />
+                                <Button fx:id="btnZoomIn" styleClass="zoom-btn" text="+">
+                                    <tooltip>
+                                        <Tooltip text="Acercar (Ctrl + Rueda arriba)" />
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="btnZoomReset" styleClass="zoom-btn-text" text="100%">
+                                    <tooltip>
+                                        <Tooltip text="Restablecer tamaño (100%)" />
+                                    </tooltip>
+                                </Button>
+                                <Button fx:id="btnZoomFit" styleClass="zoom-btn-text" text="Ajustar">
+                                    <tooltip>
+                                        <Tooltip text="Ajustar imagen a la ventana" />
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </StackPane>
+            </center>
+
+            <!-- Right: Inspector Sidebar -->
+            <right>
+                <ScrollPane fitToWidth="true" styleClass="gallery-scroll" prefWidth="330.0" minWidth="330.0" maxWidth="330.0" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                    <content>
+                        <VBox fx:id="sidebar" styleClass="editor-sidebar" spacing="12.0">
+                            <!-- Group 1: Presets Rápidos -->
+                            <VBox styleClass="gtk-group-card" spacing="8.0">
+                                <children>
+                                    <Label text="PLANTILLAS RÁPIDAS" styleClass="gtk-group-title" />
+                                    <HBox spacing="8.0">
+                                        <children>
+                                            <Button fx:id="btnClassicPreset" text="Meme Clásico (Arriba/Abajo)" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+
+                            <!-- Group 2: Editor de Frase Seleccionada -->
+                            <VBox fx:id="textPropertiesGroup" styleClass="gtk-group-card" spacing="10.0">
+                                <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                        <children>
+                                            <Label text="PROPIEDADES DE TEXTO" styleClass="gtk-group-title" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnUppercase" text="MAYÚS" styleClass="gtk-button-flat">
+                                                <tooltip>
+                                                    <Tooltip text="Alternar mayúsculas" />
+                                                </tooltip>
+                                            </Button>
+                                        </children>
+                                    </HBox>
+
+                                    <!-- Text Area -->
+                                    <TextArea fx:id="textContentArea" styleClass="gtk-text-area" promptText="Escribe el texto aquí..." prefRowCount="2" wrapText="true" />
+
+                                    <!-- Typography -->
+                                    <VBox spacing="4.0">
+                                        <children>
+                                            <Label text="Tipografía" styleClass="card-title" />
+                                            <ComboBox fx:id="fontComboBox" maxWidth="Infinity" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Size Slider & Controls -->
+                                    <VBox spacing="4.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT">
+                                                <children>
+                                                    <Label text="Tamaño" styleClass="card-title" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Label fx:id="lblFontSize" text="36 px" styleClass="card-title" />
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER" spacing="8.0">
+                                                <children>
+                                                    <Button fx:id="btnFontDec" text="-" styleClass="gtk-button" prefWidth="30.0" />
+                                                    <Slider fx:id="sliderFontSize" min="14.0" max="96.0" value="36.0" HBox.hgrow="ALWAYS" />
+                                                    <Button fx:id="btnFontInc" text="+" styleClass="gtk-button" prefWidth="30.0" />
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Text Alignment -->
+                                    <VBox spacing="4.0">
+                                        <children>
+                                            <Label text="Alineación" styleClass="card-title" />
+                                            <HBox spacing="6.0">
+                                                <children>
+                                                    <Button fx:id="btnAlignLeft" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                                    <Button fx:id="btnAlignCenter" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                                    <Button fx:id="btnAlignRight" styleClass="gtk-button" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Fill Color Palette -->
+                                    <VBox spacing="6.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT">
+                                                <children>
+                                                    <Label text="Color de Relleno" styleClass="card-title" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <ColorPicker fx:id="colorPickerFill" styleClass="combo-box" />
+                                                </children>
+                                            </HBox>
+                                            <HBox fx:id="colorPresetsContainer" spacing="8.0" alignment="CENTER_LEFT" />
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Stroke (Contorno) -->
+                                    <VBox spacing="6.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT">
+                                                <children>
+                                                    <Label text="Contorno Negro" styleClass="card-title" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <ComboBox fx:id="comboStrokeWidth" prefWidth="120.0" />
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <!-- Delete Button -->
+                                    <Button fx:id="btnDeleteText" text=" Eliminar Frase" styleClass="gtk-button-danger" maxWidth="Infinity">
+                                        <graphic>
+                                            <StackPane fx:id="trashIconContainer" />
+                                        </graphic>
+                                    </Button>
+                                </children>
+                            </VBox>
+
+                            <!-- Group 3: Capas de Texto (Layers) -->
+                            <VBox styleClass="gtk-group-card" spacing="8.0" VBox.vgrow="ALWAYS">
+                                <children>
+                                    <HBox alignment="CENTER_LEFT">
+                                        <children>
+                                            <Label text="CAPAS DE TEXTO" styleClass="gtk-group-title" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="lblLayerCount" text="0 capas" styleClass="overlay-tags" />
+                                        </children>
+                                    </HBox>
+                                    <VBox fx:id="layersListContainer" spacing="6.0" />
+                                    <Label fx:id="lblEmptyLayers" text="Haz clic en la imagen o en '+ Frase' para añadir texto." styleClass="overlay-tags" wrapText="true" />
+                                </children>
+                            </VBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </right>
+        </BorderPane>
+
+        <!-- In-App Toast Notification (GTK Libadwaita Toast style) -->
+        <HBox fx:id="toastContainer" styleClass="gtk-toast" alignment="CENTER" spacing="12.0" visible="false" opacity="0.0" maxHeight="-Infinity" maxWidth="-Infinity" StackPane.alignment="BOTTOM_CENTER">
+            <StackPane.margin>
+                <Insets bottom="24.0" />
+            </StackPane.margin>
             <children>
-               <!-- Meme Image Display -->
-               <AnchorPane fx:id="memeCanvas" styleClass="meme-canvas" minWidth="600.0" minHeight="400.0" prefWidth="600.0" prefHeight="400.0">
-                  <ImageView fx:id="imageView" fitWidth="1.0" fitHeight="1.0" preserveRatio="true" />
-                  <!-- Add text button overlay -->
-                  <VBox alignment="BOTTOM_RIGHT" styleClass="add-text-overlay" visible="false">
-                     <Button text="+" styleClass="add-text-btn" onAction="#addTextBox" />
-                  </VBox>
-               </AnchorPane>
-
-               <!-- Properties Panel -->
-               <VBox fx:id="propertiesPanel" styleClass="properties-panel" prefWidth="200.0" maxWidth="200.0" spacing="15.0">
-                  <Label text="Configuración de Texto" styleClass="panel-title" />
-                  
-                  <VBox spacing="8.0">
-                      <!-- Text Content -->
-                      <Label text="Contenido:" />
-                      <TextField fx:id="textContentField" onAction="#updateSelectedText" />
-                      
-                      <!-- Font Size -->
-                      <Label text="Tamaño de fuente:" />
-                      <HBox spacing="5.0">
-                          <Button text="-" styleClass="font-size-btn" onAction="#decreaseFontSize" />
-                          <TextField fx:id="fontSizeField" promptText="12" onAction="#updateFontSize" />
-                          <Button text="+" styleClass="font-size-btn" onAction="#increaseFontSize" />
-                      </HBox>
-                      
-                      <!-- Text Color -->
-                      <Label text="Color:" />
-                      <HBox spacing="5.0">
-                          <Button fx:id="colorBtn" text="Seleccionar" styleClass="color-btn" onAction="#selectColor" />
-                          <Label fx:id="selectedColorLabel" text="Ningún color" styleClass="color-preview" />
-                      </HBox>
-                      
-                      <!-- Position -->
-                      <Label text="Posición:" />
-                      <FlowPane fx:id="positionContainer" hgap="5.0" vgap="5.0" alignment="CENTER_LEFT">
-                          <Label text="X:" />
-                          <TextField fx:id="posXField" promptText="0" prefWidth="50" onAction="#updatePosition" />
-                          <Label text="Y:" />
-                          <TextField fx:id="posYField" promptText="0" prefWidth="50" onAction="#updatePosition" />
-                      </FlowPane>
-                      
-                      <!-- Actions -->
-                      <HBox spacing="8.0" alignment="BASELINE_CENTER">
-                          <Button fx:id="deleteTextBtn" text="Eliminar texto" styleClass="danger-btn" onAction="#deleteSelectedText" />
-                          <Button text="Exportar" styleClass="success-btn" onAction="#exportMeme" />
-                      </HBox>
-                  </VBox>
-               </VBox>
+                <StackPane fx:id="toastIconContainer" />
+                <VBox alignment="CENTER_LEFT" spacing="1.0">
+                    <children>
+                        <Label fx:id="lblToastTitle" text="¡Meme exportado con éxito!" styleClass="toast-title" />
+                        <Label fx:id="lblToastSubtitle" text="Guardado en ..." styleClass="toast-subtitle" />
+                    </children>
+                </VBox>
+                <Button fx:id="btnToastOpenFolder" text="Abrir carpeta" styleClass="gtk-button-accent-small" />
+                <Button fx:id="btnToastClose" styleClass="toast-close-btn">
+                    <tooltip>
+                        <Tooltip text="Cerrar notificación" />
+                    </tooltip>
+                </Button>
             </children>
-         </HBox>
-
-         <!-- Active Text Boxes List -->
-         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" spacing="5.0" styleClass="text-boxes-list">
-            <Label text="Cajas de texto activas" styleClass="list-title" />
-            <ListView fx:id="textBoxesList" maxHeight="150.0" />
-         </VBox>
-      </VBox>
-   </children>
-</AnchorPane>
+        </HBox>
+    </children>
+</StackPane>

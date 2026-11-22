@@ -3,6 +3,7 @@ package com.buga.mmgenerator
 import com.buga.mmgenerator.model.MemeTemplate
 import com.buga.mmgenerator.service.TemplateRepository
 import com.buga.mmgenerator.ui.Icons
+import com.buga.mmgenerator.ui.ResizeHelper
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.fxml.FXML
@@ -22,6 +23,7 @@ import javafx.scene.Scene
 import javafx.stage.FileChooser
 import javafx.stage.Modality
 import javafx.stage.Stage
+import javafx.stage.StageStyle
 import java.io.File
 
 class MainController {
@@ -392,22 +394,31 @@ class MainController {
             val fxmlLoader = FXMLLoader(HelloApplication::class.java.getResource("memes-editor.fxml"))
             val root = fxmlLoader.load<Parent>()
             val editorController = fxmlLoader.getController<MemesEditorController>()
-            editorController.setTemplate(template)
+
+            val ownerStage = rootContainer.scene?.window as? Stage ?: return
+            val scene = Scene(root, 1020.0, 720.0)
+            scene.fill = Color.TRANSPARENT
 
             val stage = Stage().apply {
                 initModality(Modality.APPLICATION_MODAL)
-                initOwner(rootContainer.scene?.window as? Stage ?: return)
+                initOwner(ownerStage)
+                initStyle(StageStyle.TRANSPARENT)
                 title = "Editor de Memes - ${template.title}"
-                scene = Scene(root, 900.0, 700.0)
-                minWidth = 800.0
+                this.scene = scene
+                minWidth = 850.0
                 minHeight = 600.0
             }
 
             // Apply the same stylesheet
             val customCss = HelloApplication::class.java.getResource("style.css")
             if (customCss != null) {
-                stage.scene?.stylesheets?.add(customCss.toExternalForm())
+                scene.stylesheets.add(customCss.toExternalForm())
             }
+
+            ResizeHelper.addResizeListener(stage)
+
+            editorController.setTemplate(template)
+            editorController.setStage(stage)
 
             stage.showAndWait()
         } catch (e: Exception) {
