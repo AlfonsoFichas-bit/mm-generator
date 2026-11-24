@@ -81,17 +81,21 @@ sudo snap install --dangerous mm-generator_1.0.0_amd64.snap
 mm-generator
 ```
 
-### Publicación en la Snap Store
-1. Registra el nombre de la aplicación:
+### Publicación en la Snap Store (GitHub Actions CI/CD)
+
+1. **Generar token de credenciales de Snapcraft:**
+   En tu terminal local:
    ```bash
-   snapcraft login
-   snapcraft register mm-generator
+   snapcraft export-login --snaps=mm-generator --acls=package_access,package_push,package_update,package_release snap-credentials.txt
    ```
-2. Sube y publica el archivo compilado:
-   ```bash
-   snapcraft upload --release=stable mm-generator_1.0.0_amd64.snap
-   ```
-3. O conecta tu repositorio de GitHub directamente en [snapcraft.io](https://snapcraft.io) para compilaciones automáticas en cada push o tag de release.
+2. **Agregar Secret en GitHub:**
+   - Ve a tu repositorio en GitHub: **Settings** > **Secrets and variables** > **Actions** > **New repository secret**.
+   - Nombre: `SNAPCRAFT_STORE_CREDENTIALS`
+   - Valor: Pega el contenido completo del archivo `snap-credentials.txt`.
+3. **Compilación y publicación automática:**
+   - Cada `git push` a `master` compila y publica en el canal `edge`.
+   - Cada tag de versión (ej. `v1.0.0`) compila y publica en el canal `stable`.
+   - También puedes lanzarlo manualmente desde la pestaña **Actions** > **Build and Publish Snap** > **Run workflow**.
 
 ---
 

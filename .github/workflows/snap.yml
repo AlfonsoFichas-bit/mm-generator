@@ -1,0 +1,45 @@
+name: Build and Publish Snap
+
+on:
+  push:
+    branches: [ "master", "main" ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    name: Build & Publish Snap
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Build Snap Package
+        uses: snapcore/action-build@v1
+        id: snapcraft-build
+
+      - name: Upload Snap Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mm-generator-snap
+          path: ${{ steps.snapcraft-build.outputs.snap }}
+          if-no-files-found: error
+
+      - name: Publish to Snap Store
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.snapcraft-build.outputs.snap }}
+          release: ${{ startsWith(github.ref, 'refs/tags/v') && 'stable' || 'edge' }}
