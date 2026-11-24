@@ -21,9 +21,26 @@ sudo snap install mm-generator
 
 ### Scoop (Windows)
 
+Si usas Scoop, puedes añadir este repositorio como bucket e instalar la aplicación fácilmente:
+
 ```powershell
-scoop bucket add mm-generator https://github.com/AlfonsoFichas-bit/mm-generator
-scoop install mm-generator/mm-generator
+# 1. Añadir el bucket
+scoop bucket add mm-generator https://github.com/AlfonsoFichas-bit/mm-generator.git
+
+# 2. Instalar
+scoop install mm-generator
+```
+
+O si prefieres instalarla directamente sin agregar el bucket:
+
+```powershell
+scoop install https://raw.githubusercontent.com/AlfonsoFichas-bit/mm-generator/master/bucket/mm-generator.json
+```
+
+Para actualizar la aplicación a futuras versiones:
+
+```powershell
+scoop update mm-generator
 ```
 
 ## Capturas
