@@ -42,16 +42,16 @@ Flathub requiere que el tarball de la aplicación esté publicado en los Release
 1. Ve al repositorio oficial de envíos de Flathub: [https://github.com/flathub/flathub](https://github.com/flathub/flathub).
 2. Haz clic en el botón **Fork** (arriba a la derecha) para crear tu copia personal.
 3. Clona tu fork o usa la interfaz web de GitHub para crear una nueva rama:
-   - Nombre de rama: `new-pr/com.buga.mmgenerator`
+   - Nombre de rama: `add-com.buga.mmgenerator`
 4. Copia los archivos de este directorio (`packaging/flathub/*`) en la raíz de tu rama en el fork.
 5. Haz commit de los archivos:
    ```bash
    git add com.buga.mmgenerator.yaml com.buga.mmgenerator.desktop com.buga.mmgenerator.metainfo.xml com.buga.mmgenerator.svg mm-generator-wrapper.sh
    git commit -m "Add com.buga.mmgenerator"
-   git push origin new-pr/com.buga.mmgenerator
+   git push origin add-com.buga.mmgenerator
    ```
 6. Ve a [https://github.com/flathub/flathub/pulls](https://github.com/flathub/flathub/pulls) y haz clic en **New pull request**:
-   - **Base repository:** `flathub/flathub` (rama `master` o `new-pr`)
-   - **Head repository:** `tu-usuario/flathub` (rama `new-pr/com.buga.mmgenerator`)
+   - **Base repository:** `flathub/flathub` (rama `new-pr`)
+   - **Head repository:** `tu-usuario/flathub` (rama `add-com.buga.mmgenerator`)
    - **Título del PR:** `Add com.buga.mmgenerator`
 7. El bot de Flathub (`flathubbot`) compilará automáticamente la aplicación para arquitecturas `x86_64` y `aarch64` y publicará un enlace de prueba para verificarla. Una vez revisada por los moderadores, se aprobará y se publicará en [flathub.org](https://flathub.org).
