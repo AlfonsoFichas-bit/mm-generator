@@ -40,6 +40,7 @@ class MainViewUITest : ApplicationTest() {
 
     @BeforeEach
     fun setUp() {
+        com.buga.mmgenerator.service.TemplateRepository.loadTemplates()
         WaitForAsyncUtils.waitForFxEvents()
     }
 

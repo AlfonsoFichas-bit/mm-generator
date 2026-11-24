@@ -20,6 +20,7 @@ apps:
       JAVA_HOME: $SNAP/usr/lib/jvm/java-21-openjdk-amd64
       PATH: $JAVA_HOME/bin:$PATH
       JAVAFX_PLATFORM: gtk3
+      JAVA_TOOL_OPTIONS: "-Duser.home=$SNAP_USER_DATA -Djavafx.cachedir=$SNAP_USER_DATA/.cache/openjfx"
     plugs:
       - home
       - opengl
