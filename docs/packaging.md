@@ -99,7 +99,57 @@ mm-generator
 
 ---
 
-## 4. Pruebas de Calidad en el Sandbox
+## 4. Scoop (Windows)
+
+### Requisitos previos en el sistema
+- Windows 10/11 con [Scoop](https://scoop.sh/) instalado.
+- JDK 21 (Azul Zulu o Temurin) con `jpackage` disponible en `PATH`.
+- Gradle Wrapper (incluido en el repositorio).
+
+### Compilacion local
+Ejecuta el script de PowerShell incluido:
+
+```powershell
+.\packaging\scoop\build-scoop.ps1
+```
+
+O indicando una version explicita:
+
+```powershell
+.\packaging\scoop\build-scoop.ps1 -Version 1.0.0
+```
+
+El script genera `build/scoop/mm-generator-<version>-windows-x64.zip` (app-image con runtime incluido,
+sin dependencias externas de Java) y actualiza el hash en `bucket/mm-generator.json`.
+
+### Instalacion local (sin publicar)
+```powershell
+scoop install <ruta-al-zip>   # no soportado directamente; usa un bucket local
+```
+
+Para probar con un bucket local:
+```powershell
+scoop bucket add mm-generator-local C:\ruta\al\repo
+scoop install mm-generator-local/mm-generator
+```
+
+### Publicacion en un bucket Scoop
+1. Crea un GitHub Release con tag `v1.0.0` y sube `mm-generator-1.0.0-windows-x64.zip`.
+2. Haz commit y push de `bucket/mm-generator.json` (el script ya actualizo el hash).
+3. Los usuarios instalan con:
+   ```powershell
+   scoop bucket add mm-generator https://github.com/AlfonsoFichas-bit/mm-generator
+   scoop install mm-generator/mm-generator
+   ```
+
+### Actualizacion de versiones
+Al publicar una nueva version, ejecuta de nuevo `build-scoop.ps1 -Version X.Y.Z`, crea el
+release correspondiente y haz push del manifest actualizado. Scoop detectara la nueva version
+mediante `checkver` y `autoupdate`.
+
+---
+
+## 5. Pruebas de Calidad en el Sandbox
 
 Al probar tanto en Flatpak como en Snap, verifica los siguientes puntos clave:
 * **Persistencia de Favoritos:** Al marcar plantillas como favoritas y reiniciar la app, los datos deben persistir (en Flatpak dentro de `~/.var/app/com.buga.mmgenerator/` y en Snap dentro de `~/snap/mm-generator/current/`).

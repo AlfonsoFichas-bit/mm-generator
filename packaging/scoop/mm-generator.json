@@ -1,0 +1,30 @@
+{
+    "version": "1.0.0",
+    "description": "Creador y editor de memes clasico y moderno",
+    "homepage": "https://github.com/AlfonsoFichas-bit/mm-generator",
+    "license": "GPL-3.0-or-later",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/AlfonsoFichas-bit/mm-generator/releases/download/v1.0.0/mm-generator-1.0.0-windows-x64.zip",
+            "hash": "sha256:dbd5607b2af5d826a1abb958d68b0f31aa8775bcb3532ed7597b37b76193aeb7"
+        }
+    },
+    "extract_dir": "mm-generator",
+    "bin": "mm-generator.exe",
+    "shortcuts": [
+        [
+            "mm-generator.exe",
+            "MM Generator"
+        ]
+    ],
+    "checkver": {
+        "github": "https://github.com/AlfonsoFichas-bit/mm-generator"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/AlfonsoFichas-bit/mm-generator/releases/download/v$version/mm-generator-$version-windows-x64.zip"
+            }
+        }
+    }
+}
