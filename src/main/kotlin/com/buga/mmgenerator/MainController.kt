@@ -100,10 +100,9 @@ class MainController {
         setupFolderAction()
         setupWindowControls()
 
-        // Load templates and select rage-Table-Flip-Guy by default (matches reference screenshot)
-        val templates = TemplateRepository.loadTemplates()
-        selectedTemplate = templates.find { it.filename.contains("Table-Flip", ignoreCase = true) }
-            ?: templates.getOrNull(1)
+        // Load templates without preselecting any meme
+        TemplateRepository.loadTemplates()
+        selectedTemplate = null
 
         renderGallery()
     }
